@@ -9,3 +9,9 @@ The public export builds without a Sites project binding. To self-host, copy `.o
 Before announcing general availability, use a second account to install from a fresh clone, authenticate MCP, render, and open the reader on a phone. Check trusted local hooks, Remote use, anonymous API rejection, cross-user read/save rejection, and expiry. Verify the Site is public and authenticated document operations remain required. Never substitute a shared bearer token for user sign-in.
 
 Native mobile ChatGPT installation is deferred to a later public-directory submission with a package that excludes lifecycle hooks.
+
+## Registered Sites connection
+
+The GitHub/local marketplace package includes `.app.json` and uses the existing Sites app binding. Do not replace it with a raw `/mcp` OAuth entry. Verify access with a second account before announcing general public availability.
+
+GitHub distribution is separate from directory submission. Do not upload this source package unchanged to the public directory: its app binding and lifecycle hooks require a separate supported submission flow that preserves the canonical Site integration. Public review and publisher setup remain incomplete.

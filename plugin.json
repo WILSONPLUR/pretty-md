@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "pretty-md",
-  "version": "0.4.10",
+  "version": "0.4.11",
   "description": "Read Markdown comfortably. Open completed Plan-mode plans, directly requested Markdown, and requested lists, guides, checklists, comparisons, or itineraries in Pretty MD.",
   "license": "MIT",
   "author": {
@@ -21,8 +21,10 @@
         "capabilities": [
           "Read"
         ],
-        "defaultPrompt": "Use Pretty MD for each completed Plan-mode plan, direct Pretty MD requests, content explicitly requested as Markdown, and requested lists, guides, checklists, comparisons, or itineraries. Render the exact completed text and include the reader link in the final chat, even without a saved file or project."
-      }
+        "defaultPrompt": "Use Pretty MD for each completed Plan-mode plan, direct Pretty MD requests, content explicitly requested as Markdown, and requested lists, guides, checklists, comparisons, or itineraries. Render the exact completed text and include the reader link in the final chat, even without a saved file or project.",
+        "websiteURL": "https://pretty-md.yourshows12.chatgpt.site/"
+      },
+      "apps": "./.app.json"
     }
   },
   "repository": "https://github.com/WILSONPLUR/pretty-md",

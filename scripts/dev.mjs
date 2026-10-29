@@ -21,7 +21,7 @@ const bucket = {
 };
 const server = http.createServer(async (req, res) => {
   try {
-    if (req.url === '/' && req.method === 'GET') {
+    if (req.url === '/mcp-preview' && req.method === 'GET') {
       res.writeHead(200, { 'content-type': 'text/html;charset=utf-8', 'cache-control': 'no-store' });
       res.end(await readFile(new URL('./preview-host.html', import.meta.url), 'utf8'));
       return;

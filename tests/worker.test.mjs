@@ -64,8 +64,8 @@ test('server exports current reader and plan skills with verifiable source', asy
   }
 });
 
-test('reader resource is embedded and unrelated website routes remain unavailable', async () => {
-  for (const path of ['/', '/reader']) for (const method of ['GET', 'HEAD']) assert.equal((await worker.fetch(new Request(`https://pretty-md.example${path}`, { method }))).status, 404);
+test('reader resource is embedded and unknown website routes remain unavailable', async () => {
+  for (const path of ['/reader', '/missing']) for (const method of ['GET', 'HEAD']) assert.equal((await worker.fetch(new Request(`https://pretty-md.example${path}`, { method }))).status, 404);
   const { result } = await (await request('resources/list')).json();
   assert.equal(result.resources[0].uri, 'ui://pretty-md/reader-v2');
   const resource = (await (await request('resources/read', { uri: 'ui://pretty-md/reader-v2' })).json()).result.contents[0];
@@ -130,4 +130,23 @@ test('request sizes are enforced from declared length and actual streamed bytes'
   const oversized = (await (await request('tools/call', { name: 'pretty_md_render', arguments: { markdown: 'x'.repeat(2097153) } })).json()).result;
   assert.equal(oversized.isError, true);
   assert.match(oversized.content[0].text, /2 MB/);
+});
+
+
+test('public homepage opens the file and paste reader with a nonce-protected response', async () => {
+  const response = await worker.fetch(new Request('https://pretty-md.example/'));
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get('content-type'), /text\/html/);
+  assert.equal(response.headers.get('cache-control'), 'no-store');
+  const html = await response.text();
+  assert.match(html, /Choose file/);
+  assert.match(html, /Paste Markdown/);
+  const nonce = response.headers.get('content-security-policy').match(/script-src 'nonce-([^']+)'/)[1];
+  assert.ok(html.includes(`<script nonce="${nonce}">`));
+  assert.ok(html.includes(`<style nonce="${nonce}">`));
+  const head = await worker.fetch(new Request('https://pretty-md.example/', { method: 'HEAD' }));
+  assert.equal(head.status, 200);
+  assert.equal(await head.text(), '');
+  assert.match(head.headers.get('content-type'), /text\/html/);
+  assert.equal((await worker.fetch(new Request('https://pretty-md.example/', { method: 'POST' }))).status, 404);
 });

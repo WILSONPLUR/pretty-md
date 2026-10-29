@@ -1,9 +1,4 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
-  "mcpServers": {
-    "pretty-md": {
-      "type": "streamable-http",
-      "url": "https://pretty-md.yourshows12.chatgpt.site/mcp"
-    }
-  }
+  "mcpServers": {}
 }

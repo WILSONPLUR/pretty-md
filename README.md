@@ -10,28 +10,43 @@ Viewer supports settings:
 2. Dark/light theme switch
 3. Line spacing
 
-## Install from GitHub
+Version **0.4.11** uses the existing ChatGPT Sites connection.
 
-1. Clone the plugin:
+## Use the hosted reader now
 
-   ```sh
-   git clone https://github.com/WILSONPLUR/pretty-md.git
-   cd pretty-md
-   ```
+1. Open [Pretty MD](https://pretty-md.yourshows12.chatgpt.site/).
+2. Choose **Choose file** or **Paste Markdown**.
 
-2. Add the marketplace and the plugin:
-   ```sh
-   codex plugin marketplace add .
-   codex plugin add pretty-md@pretty-md-local
-   ```
-   
-3. Open this folder in Codex desktop and restart the app.
-4. Open **Plugins → Pretty MD Local → pretty-md → Install**. Sign in when prompted; review and trust the hooks to enable automatic reader links.
-5. Start a new chat and paste:
+The website works without installing a plugin. Files opened this way are rendered on your device.
 
-   ```text
-   @pretty-md render a short markdown "Hello world" content
-   ```
+## Install the GitHub package in Codex
+
+Requires Git and Codex. Run in Terminal:
+
+```sh
+git clone https://github.com/WILSONPLUR/pretty-md.git
+cd pretty-md
+codex plugin marketplace add .
+codex plugin add pretty-md@pretty-md-local
+```
+
+Restart Codex, open **Plugins → Pretty MD Local → pretty-md → Manage**, and complete **Connect** if prompted. Start a new chat:
+
+```text
+@pretty-md render a short markdown "Hello world" content
+```
+
+Already installed? Update the same package:
+
+```sh
+cd /path/to/pretty-md
+git pull --ff-only
+codex plugin add pretty-md@pretty-md-local
+```
+
+Version 0.4.11 links this package to the existing ChatGPT Sites app instead of trying standalone OAuth against its raw URL. Do not install a second Pretty MD plugin or run `codex mcp login pretty-md`.
+
+**Access limitation:** the registered Site integration must be available to your account. Owner testing does not establish public availability. Installation and rendering with an unrelated account remain unverified; a public release of the existing Site integration may still be required. See [connection troubleshooting](docs/codex-installation.md).
 
 ## What users get
 

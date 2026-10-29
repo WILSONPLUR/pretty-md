@@ -99,8 +99,8 @@ test('discovery works without exposing private document data, and metadata match
   assert.match(resource.text, /<title>pretty-md/);
 });
 
-test('the embedded reader remains available while standalone website routes are removed', async () => {
-  for (const path of ['/', '/reader']) {
+test('the embedded reader remains available and unknown website routes return 404', async () => {
+  for (const path of ['/reader', '/missing']) {
     for (const method of ['GET', 'HEAD']) {
       const response = await worker.fetch(new Request(`https://pretty-md.example${path}`, { method }));
       assert.equal(response.status, 404);

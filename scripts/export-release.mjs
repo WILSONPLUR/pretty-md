@@ -11,6 +11,7 @@ try { await access(target); throw new Error(`Release directory already exists: $
 const files = ['LICENSE', 'README.md', 'plugin.json', 'mcp.json', 'package.json', 'package-lock.json', 'agents', 'assets', 'hooks', 'skills', 'src', 'tests', 'docs'];
 await mkdir(target, { recursive: true });
 for (const file of files) await cp(file, resolve(target, file), { recursive: true, filter: path => !basename(path).startsWith('.') && basename(path) !== 'node_modules' });
+await cp('.app.json', resolve(target, '.app.json'));
 await mkdir(resolve(target, 'scripts'));
 for (const file of ['build.mjs', 'dev.mjs', 'validate-artifact.mjs', 'preview-host.html', 'export-release.mjs']) await cp(`scripts/${file}`, resolve(target, 'scripts', file));
 await mkdir(resolve(target, '.agents/plugins'), { recursive: true });

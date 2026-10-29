@@ -1,26 +1,44 @@
-# Install Pretty MD in Codex and ChatGPT desktop
+# Install Pretty MD
 
-Requires Git and a supported desktop Codex or ChatGPT client. Node.js 22 or later must be on the execution host’s PATH for the optional lifecycle hooks. Installing the hosted reader does not require npm or a local build.
+## New installation
 
-1. Clone the public repository using its GitHub **Code → HTTPS** URL: `git clone https://github.com/WILSONPLUR/pretty-md.git`.
-2. Open that clone as a project in the desktop app. Restart the app so it discovers `.agents/plugins/marketplace.json`.
-3. Open Plugins, select **Pretty MD Local**, and install **pretty-md**.
-4. Complete the hosted MCP connection and Sign in with ChatGPT when prompted. The endpoint and OAuth resource are both `https://pretty-md.yourshows12.chatgpt.site/mcp`. Supply your own account authorization; no shared token is needed.
-5. Review and trust the bundled hooks if you want local Markdown change detection and plan-link recovery. The reader can be invoked explicitly without hook trust.
-6. Start a new chat and ask `@pretty-md render a short Markdown example` (or invoke `$pretty-md` in Codex).
+```sh
+git clone https://github.com/WILSONPLUR/pretty-md.git
+cd pretty-md
+codex plugin marketplace add .
+codex plugin add pretty-md@pretty-md-local
+```
 
-Alternatively, run `codex plugin marketplace add WILSONPLUR/pretty-md` and install from `/plugins` or the desktop Plugins directory. A clone can also be registered explicitly with `codex plugin marketplace add /absolute/path/to/clone`.
+Restart Codex. Open **Plugins → Pretty MD Local → pretty-md → Manage** and complete **Connect** when offered. Review hook trust if you want automatic plan links. Start a new chat and send:
 
-## Remote and mobile
+```text
+@pretty-md render a short Markdown example
+```
 
-Install on the connected execution host for Codex Remote. Keep that host online. Open the returned reader link on your phone and sign in with the same ChatGPT account that created the document. Browser reader links expire after 24 hours. A local marketplace install does not by itself provide native mobile ChatGPT plugin installation. Hooks require a supported local execution environment and trust; they are not a guarantee of automatic invocation on every client.
+This is one package installation. Version 0.4.11 references the existing registered ChatGPT Sites app through `.app.json`; Sites supplies the hosted tools and account connection. The skills and local hooks stay in the GitHub package.
 
-## Updates and removal
+## Already installed
 
-For a manual clone, run `git pull --ff-only`, then refresh/reinstall Pretty MD from that marketplace and restart the app or CLI session. Codex loads a cached installed copy, so editing the clone alone may not update it. For a configured Git marketplace, run `codex plugin marketplace upgrade pretty-md-local`, then refresh the installed plugin. Re-review hook trust when definitions change.
+```sh
+cd /path/to/pretty-md
+git pull --ff-only
+codex plugin add pretty-md@pretty-md-local
+```
 
-Uninstall in Plugins (or `/plugins`). To remove a configured source, run `codex plugin marketplace remove pretty-md-local`. This does not delete your clone. Avoid enabling duplicate installs from multiple marketplaces.
+Restart Codex and start a new chat. Confirm the plugin reports version **0.4.11**. Codex loads an installed cache, so pulling alone is insufficient. Do not install another Pretty MD copy.
 
-## Hosted service
+## Hosted connection unavailable
 
-The service is operated by the publisher of this repository. It requires account authentication for document operations. See [data handling](data-handling.md). If connection or phone sign-in fails, report the client version and error without including private Markdown or access tokens. Public availability requires the release checks in [release instructions](release.md).
+The registered Site app must be accessible to your account. A public website does not establish public availability of its registered integration. The owner's connection is distinct from public distribution; access and rendering with an unrelated account still need verification. If access is denied, report that error rather than repeatedly cloning or installing. The public release of the existing integration remains a publisher task.
+
+Version 0.4.10 incorrectly configured the Site as a standalone raw MCP URL. Its login failed with `Dynamic client registration not supported`; CIMD was also rejected. Version 0.4.11 removes that raw connection. Do not run `codex mcp login pretty-md` for this package.
+
+If a separate user-level MCP server named `pretty-md` was added during troubleshooting, inspect it with `codex mcp get pretty-md`. Remove that redundant raw configuration with `codex mcp remove pretty-md` only if it points to this Site and was added for the old setup. That command removes the standalone server configuration, not the installed plugin or its app binding.
+
+## Browser and phone use
+
+Open https://pretty-md.yourshows12.chatgpt.site/ and choose **Choose file** or **Paste Markdown**. This works without plugin installation and renders local files on your device. It does not create a hosted tool-generated link.
+
+Tool-generated links require the same account that created them and expire after 24 hours. Local hooks need Node.js 22 or later on the execution host and hook trust. They do not provide native mobile installation.
+
+See [data handling](data-handling.md) for the service policy.

@@ -189,9 +189,18 @@ async function rpc(message, context) {
   // no remembered negotiation to satisfy the current host's response contract.
   return { jsonrpc: '2.0', id, result: { resultType: 'complete', ...(cacheableMethods.has(method) ? { ttlMs: 0, cacheScope: 'private' } : {}), ...result } };
 }
+function readerResponse(method = 'GET') {
+  const nonce = randomId();
+  const html = APP_HTML.replace('<style>', `<style nonce="${nonce}">`).replace('<script>', `<script nonce="${nonce}">`);
+  return new Response(method === 'HEAD' ? null : html, { status: 200, headers: noStore({
+    'content-type': 'text/html;charset=utf-8',
+    'content-security-policy': `default-src 'none'; script-src 'nonce-${nonce}'; style-src 'nonce-${nonce}' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`,
+  }) });
+}
 export default {
   async fetch(request, env = {}) {
     const url = new URL(request.url);
+    if (url.pathname === '/' && ['GET', 'HEAD'].includes(request.method)) return readerResponse(request.method);
     if (url.pathname === '/health') return json({ ok: true, app: 'pretty-md', version: SERVER_INFO.version });
     if (url.pathname === '/assets/logo-v1.svg' && request.method === 'GET') return new Response(logoSvg, { headers: {
       'content-type': 'image/svg+xml', 'cache-control': 'public, max-age=31536000, immutable', 'x-content-type-options': 'nosniff',
@@ -246,12 +255,7 @@ export default {
         response.headers.set('x-document-version', `"${document.etag}"`);
         return response;
       }
-      const nonce = randomId();
-      const html = APP_HTML.replace('<style>', `<style nonce="${nonce}">`).replace('<script>', `<script nonce="${nonce}">`);
-      return new Response(html, { status: 200, headers: noStore({
-        'content-type': 'text/html;charset=utf-8',
-        'content-security-policy': `default-src 'none'; script-src 'nonce-${nonce}'; style-src 'nonce-${nonce}' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`,
-      }) });
+      return readerResponse();
     }
     if (url.pathname === '/mcp') {
       if (request.method !== 'POST') return new Response('Use POST for stateless MCP.', { status: 405, headers: { allow: 'POST' } });
