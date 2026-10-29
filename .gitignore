@@ -1,0 +1,8 @@
+node_modules/
+dist/
+worker/
+output/
+.env*
+!.env.example
+.openai/hosting.json
+.DS_Store

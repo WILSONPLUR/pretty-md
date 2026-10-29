@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en" data-surface="__READER_SURFACE__" data-view="read">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <!-- READER_FAVICON -->
+  <title>pretty-md · Markdown reader</title>
+  <style>/* APP_STYLES */</style>
+</head>
+<body>
+  <a class="skip" href="#document">Skip to document</a>
+  <header class="reader-toolbar" id="reader-toolbar" aria-label="Reader tools">
+    <div class="toolbar-document">
+      <!-- READER_BRAND -->
+      <button class="icon-button" id="toc-toggle" aria-label="Show contents" aria-expanded="false" aria-controls="sidebar" title="Contents" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16m4-11h4m-4 4h4"/></svg></button>
+      <span class="filename" id="filename" title="Markdown reader">Markdown reader</span>
+    </div>
+    <div class="view-tabs" role="group" aria-label="Document view">
+      <button id="read-tab" class="selected" aria-pressed="true" disabled>Read</button>
+      <button id="source-tab" aria-pressed="false" disabled>Source</button>
+    </div>
+    <div class="toolbar-actions">
+      <button class="icon-button" id="search-toggle" aria-label="Search document" aria-expanded="false" aria-controls="find-bar" title="Search (⌘/Ctrl F)" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg></button>
+      <button class="icon-button" id="edit-toggle" aria-label="Edit Markdown" aria-pressed="false" title="Edit Markdown" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 4 5 5M4 20l5-1L21 7a2 2 0 0 0-5-5L4 14z"/></svg></button>
+      <button class="icon-button" id="more-toggle" aria-label="More actions" aria-haspopup="menu" aria-expanded="false" aria-controls="more-menu" title="More actions"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button>
+    </div>
+  </header>
+  <div class="reading-progress" id="reading-progress" role="progressbar" aria-label="Reading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden><span id="progress-fill"></span></div>
+  <div class="workspace">
+    <aside class="sidebar" id="sidebar" aria-labelledby="toc-heading" hidden inert>
+      <div class="sidebar-heading"><h2 id="toc-heading">Contents</h2><button class="icon-button" id="toc-close" aria-label="Close contents"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
+      <nav id="toc" aria-label="Table of contents"><p class="muted sidebar-empty">Headings will appear here.</p></nav>
+    </aside>
+    <div id="toc-backdrop" class="backdrop" aria-hidden="true" hidden></div>
+    <main class="main-panel" id="main-panel">
+      <div class="draft-notice" id="draft-notice" role="status" hidden></div>
+      <div class="editor-toolbar" id="save-toolbar" aria-label="Save changes" hidden><span id="edit-status" role="status">Markdown editor</span><div><button class="secondary-button" id="edit-discard">Discard</button><button class="primary-button" id="edit-save">Save changes</button></div></div>
+        <p class="editor-message" id="edit-error" role="status" hidden></p>
+        <p class="editor-message" id="recovery-error" role="status" hidden></p>
+      <section class="editor" id="editor" aria-label="Edit Markdown" hidden>
+        <div class="format-toolbar" id="format-toolbar" role="toolbar" aria-label="Text formatting">
+          <button data-command="toggleBold" title="Bold (⌘/Ctrl B)" aria-label="Bold (⌘/Ctrl B)"><b>B</b></button><button data-command="toggleItalic" title="Italic (⌘/Ctrl I)" aria-label="Italic (⌘/Ctrl I)"><i>I</i></button><button data-command="toggleStrike" title="Strikethrough" aria-label="Strikethrough">S̶</button>
+          <button data-command="heading" title="Heading" aria-label="Heading">H2</button><button data-command="toggleBulletList" title="Bullet list" aria-label="Bullet list">• List</button><button data-command="toggleOrderedList" title="Numbered list" aria-label="Numbered list">1. List</button><button data-command="toggleCodeBlock" title="Code block" aria-label="Code block">Code</button>
+          <button data-command="undo" title="Undo" aria-label="Undo">↶</button><button data-command="redo" title="Redo" aria-label="Redo">↷</button>
+          <button data-command="link" title="Edit link" aria-label="Edit link">Link</button><button data-command="image" title="Insert or replace image" aria-label="Insert or replace image">Image</button>
+          <span id="table-tools" hidden><button data-command="addRowAfter">+ Row</button><button data-command="deleteRow">− Row</button><button data-command="addColumnAfter">+ Column</button><button data-command="deleteColumn">− Column</button></span>
+        </div>
+      </section>
+      <section class="find-bar" id="find-bar" aria-label="Search document" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg>
+        <input id="find-input" type="search" placeholder="Find in document…" aria-label="Find in this document" autocomplete="off">
+        <span id="find-count" aria-live="polite"></span>
+        <button class="icon-button" id="find-prev" aria-label="Previous match" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 6-6 6 6"/></svg></button>
+        <button class="icon-button" id="find-next" aria-label="Next match" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 10 6 6 6-6"/></svg></button>
+        <button class="icon-button" id="find-close" aria-label="Close search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button>
+      </section>
+      <div class="scroll-area" id="scroll-area" tabindex="0" aria-label="Scrollable document">
+        <section class="reader-empty" id="reader-empty">
+          <div class="empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7zM14 3v5h4M10 12h5m-5 4h5"/></svg></div>
+          <h1>Open Markdown</h1>
+          <p>Choose a file or paste your Markdown.<br>A little space to read it clearly.</p>
+          <div class="reader-empty-actions"><button class="primary-button" id="empty-open">Choose file</button><button class="secondary-button" id="empty-paste">Paste Markdown</button></div>
+          <span class="empty-note">Your file stays on your device.</span>
+        </section>
+        <div id="doc-container" hidden>
+          <div class="document-meta" id="document-meta"><span id="reading-time"></span><span class="meta-dot" aria-hidden="true">·</span><span id="word-count"></span><span class="progress-label" id="progress-label">0% read</span></div>
+          <p class="source-label" id="source-label" hidden>Markdown source</p>
+          <h1 class="document-title" id="document-title" hidden></h1>
+          <article class="prose" id="document" tabindex="-1"></article>
+          <div id="inline-editor" hidden></div>
+          <pre class="source-view" id="source" hidden tabindex="0" aria-label="Markdown source"></pre>
+        </div>
+      </div>
+    </main>
+  </div>
+  <section class="preferences popover" id="preferences" role="dialog" aria-labelledby="preferences-title" hidden>
+    <div class="popover-heading"><h2 id="preferences-title">Reading preferences</h2><button class="icon-button" id="preferences-close" aria-label="Close reading preferences"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
+    <div class="pref-row"><span id="font-size-label">Text size</span><div class="stepper" role="group" aria-labelledby="font-size-label"><button id="font-smaller" aria-label="Decrease text size">−</button><output id="font-size" aria-live="polite">17</output><button id="font-larger" aria-label="Increase text size">+</button></div></div>
+    <div class="pref-row"><label for="font-family">Typeface</label><select id="font-family"><option value="sans">System sans</option><option value="serif">Serif</option></select></div>
+    <div class="pref-row"><label for="line-height">Line spacing</label><select id="line-height"><option value="1.55">Compact</option><option value="1.8" selected>Relaxed</option><option value="2">Airy</option></select></div>
+    <div class="pref-row"><label for="code-wrap">Wrap code lines</label><input id="code-wrap" type="checkbox" role="switch"></div>
+    <div class="pref-row theme-row"><label for="color-theme">Appearance</label><select id="color-theme"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select></div>
+  </section>
+  <div class="more-menu popover" id="more-menu" role="menu" aria-label="Document actions" hidden>
+    <button id="type-toggle" role="menuitem" aria-expanded="false" aria-controls="preferences"><span aria-hidden="true">Aa</span>Font styles</button>
+    <button id="open-file" role="menuitem"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h7l2 2h9v11H3zM3 7V4h7l2 3"/></svg>Open file<span class="menu-extension">.md</span></button>
+    <button id="paste-open" role="menuitem"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5H5v16h14V5h-3M8 3h8v4H8zM8 12h8m-8 4h6"/></svg>Paste Markdown</button>
+    <div class="menu-divider" role="separator"></div>
+    <button id="copy-markdown" role="menuitem" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>Copy Markdown</button>
+    <button id="download" role="menuitem" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4"/></svg>Download original</button>
+  </div>
+  <input type="file" id="file-input" accept=".md,.markdown,.mdown,.mkd,text/markdown,text/plain" hidden>
+  <dialog id="paste-dialog" aria-labelledby="paste-title"><form id="paste-form">
+    <div class="dialog-heading"><h2 id="paste-title">Paste Markdown</h2><button class="icon-button" type="button" id="paste-close" aria-label="Close paste dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
+    <label for="paste-filename">File name</label><input id="paste-filename" value="Untitled.md" maxlength="255" required>
+    <label for="paste-text">Markdown</label><textarea id="paste-text" placeholder="# Something worth reading&#10;&#10;Paste your document here…" required spellcheck="false"></textarea>
+    <div class="dialog-footer"><span>Rendered on your device, without an upload.</span><button class="primary-button" type="submit">Read document</button></div>
+  </form></dialog>
+  <div class="toast" id="toast" role="status" hidden></div>
+  <dialog id="image-dialog" aria-labelledby="image-title"><form id="image-form">
+    <div class="dialog-heading"><h2 id="image-title">Edit image</h2><button type="button" class="icon-button" id="image-close" aria-label="Close image editor">×</button></div>
+    <label for="image-url">Image URL or relative path</label><input id="image-url" placeholder="https://…">
+    <label for="image-alt">Description</label><input id="image-alt">
+    <label for="image-upload">Upload replacement (PNG, JPEG, GIF or WebP · up to 5 MB)</label><input id="image-upload" type="file" accept="image/png,image/jpeg,image/gif,image/webp">
+    <p id="image-error" role="status" hidden></p><div class="save-actions"><button type="button" id="image-remove" class="secondary-button">Remove image</button><button class="primary-button">Apply</button></div>
+  </form></dialog>
+  <dialog id="save-dialog" aria-labelledby="save-title">
+    <div class="dialog-heading"><h2 id="save-title">Save changes</h2><button class="icon-button" id="save-close" aria-label="Keep editing">×</button></div>
+    <p>Save updates this document and refreshes the view. Save as copy downloads the edited document to your device.</p>
+    <p id="save-error" role="status" hidden></p>
+    <div class="save-actions"><button class="secondary-button" id="save-copy">Save as copy</button><button class="primary-button" id="save-original">Save</button></div>
+  </dialog>
+  <script>/* APP_SCRIPT */</script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+{
+  "description": "Attach reader links to completed plans and Markdown files created or changed by Codex.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${PLUGIN_ROOT}/hooks/markdown-write.mjs\" snapshot",
+            "timeout": 20,
+            "statusMessage": "Preparing Markdown change tracking"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${PLUGIN_ROOT}/hooks/markdown-write.mjs\" prompt",
+            "timeout": 5,
+            "statusMessage": "Preparing plan reader delivery"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${PLUGIN_ROOT}/hooks/markdown-write.mjs\" detect",
+            "timeout": 20,
+            "statusMessage": "Checking for changed Markdown"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${PLUGIN_ROOT}/hooks/markdown-write.mjs\" stop",
+            "timeout": 20,
+            "statusMessage": "Checking plan and Markdown reader links"
+          }
+        ]
+      }
+    ]
+  }
+}

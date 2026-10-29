@@ -1,0 +1,20 @@
+{
+  "name": "pretty-md-local",
+  "interface": {
+    "displayName": "Pretty MD Local"
+  },
+  "plugins": [
+    {
+      "name": "pretty-md",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
