@@ -1,6 +1,14 @@
-# pretty-md
+# Pretty MD
 
-Version **0.4.10** is a cozy Markdown viewer for ChatGPT, Codex, and Codex Remote. It targets completed Plan-mode plans (including projectless Remote chats), direct Pretty MD requests, explicitly requested Markdown of any length, and natural-language requests for structured content such as lists, guides, checklists, comparisons, and itineraries. The completed content gets a private reader link that expires after 24 hours. Host support for automatic tool invocation varies; an explicit `@pretty-md` request remains the most reliable way to open it. Its MCP activity icon uses a compact rendition of the same logo, embedded in tool metadata so it works on the hosted Site.
+A Cozy Markdown viewer for ChatGPT, Codex, and Codex Remote. 
+
+Use it whenever you want to have a cozy and native-like view of plan mode document, regular md file and edit file in Edit Mode.
+
+Viewer supports settings:
+
+1. Font styles(size, family)
+2. Dark/light theme switch
+3. Line spacing
 
 ## Install from GitHub
 
@@ -11,12 +19,18 @@ Version **0.4.10** is a cozy Markdown viewer for ChatGPT, Codex, and Codex Remot
    cd pretty-md
    ```
 
-2. Open this folder in Codex desktop and restart the app.
-3. Open **Plugins → Pretty MD Local → pretty-md → Install**. Sign in when prompted; review and trust the hooks to enable automatic reader links.
-4. Start a new chat and paste:
+2. Add the marketplace and the plugin:
+   ```sh
+   codex plugin marketplace add .
+   codex plugin add pretty-md@pretty-md-local
+   ```
+   
+3. Open this folder in Codex desktop and restart the app.
+4. Open **Plugins → Pretty MD Local → pretty-md → Install**. Sign in when prompted; review and trust the hooks to enable automatic reader links.
+5. Start a new chat and paste:
 
    ```text
-   @pretty-md render a short Markdown example
+   @pretty-md render a short markdown "Hello world" content
    ```
 
 ## What users get
