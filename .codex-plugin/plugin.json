@@ -1,0 +1,28 @@
+{
+  "name": "pretty-md",
+  "version": "0.4.12",
+  "description": "Read Markdown comfortably. Open completed Plan-mode plans, directly requested Markdown, and requested lists, guides, checklists, comparisons, or itineraries in Pretty MD.",
+  "license": "MIT",
+  "author": {
+    "name": "pretty-md"
+  },
+  "repository": "https://github.com/WILSONPLUR/pretty-md",
+  "homepage": "https://github.com/WILSONPLUR/pretty-md",
+  "hooks": "./hooks/hooks.json",
+  "interface": {
+    "displayName": "pretty-md",
+    "logo": "./assets/logo.svg",
+    "composerIcon": "./assets/logo.svg",
+    "shortDescription": "Cozy Markdown & plan reader",
+    "longDescription": "A comfortable Markdown reader for mobile and desktop. Attach a reader link below completed Plan-mode plans, including native Plan cards without files or projects. Open any content expressly requested as Markdown and requested lists, guides, checklists, comparisons, or itineraries. Trusted local Codex hooks can recover missing plan links.",
+    "developerName": "pretty-md",
+    "category": "Productivity",
+    "capabilities": [
+      "Read"
+    ],
+    "defaultPrompt": "Open each completed Plan-mode plan, Markdown, and requested lists, guides, checklists in Pretty MD.",
+    "websiteURL": "https://pretty-md.yourshows12.chatgpt.site/"
+  },
+  "apps": "./.app.json",
+  "skills": "./skills/"
+}

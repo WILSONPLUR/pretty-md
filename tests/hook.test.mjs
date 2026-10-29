@@ -81,21 +81,21 @@ test('plugin manifests wire trusted lifecycle events to the packaged hook', asyn
   assert.equal(hooks.hooks.Stop[0].hooks[0].command.includes('markdown-write.mjs\" stop'), true);
   assert.match(hooks.hooks.UserPromptSubmit[0].hooks[0].command, /markdown-write\.mjs" prompt$/);
 
-  const manifest = JSON.parse(await readFile(join(root, 'plugin.json'), 'utf8'));
+  const manifest = JSON.parse(await readFile(join(root, '.codex-plugin', 'plugin.json'), 'utf8'));
   assert.equal(manifest.name, 'pretty-md');
-  assert.equal(manifest.extensions['com.openai'].interface.logo, './assets/logo.svg');
-  assert.equal(manifest.extensions['com.openai'].interface.composerIcon, './assets/logo.svg');
+  assert.equal(manifest.interface.logo, './assets/logo.svg');
+  assert.equal(manifest.interface.composerIcon, './assets/logo.svg');
   const icon = await readFile(join(root, 'assets', 'logo.svg'), 'utf8');
   assert.match(icon, /viewBox="0 0 512 512"/);
   assert.ok(Buffer.byteLength(icon) <= 5 * 1024 * 1024);
-  assert.equal(manifest.version, '0.4.10');
-  assert.equal(manifest.extensions['com.openai'].hooks, './hooks/hooks.json');
+  assert.equal(manifest.version, '0.4.12');
+  assert.equal(manifest.hooks, './hooks/hooks.json');
   assert.match(manifest.description, /requested lists, guides, checklists/i);
   assert.match(manifest.description, /Plan.mode/i);
-  assert.equal(manifest.extensions['com.openai'].interface.shortDescription, 'Cozy Markdown & plan reader');
-  assert.ok(manifest.extensions['com.openai'].interface.shortDescription.length <= 30);
-  assert.match(manifest.extensions['com.openai'].interface.defaultPrompt, /completed Plan-mode plan/i);
-  assert.match(manifest.extensions['com.openai'].interface.defaultPrompt, /requested lists, guides, checklists/i);
+  assert.equal(manifest.interface.shortDescription, 'Cozy Markdown & plan reader');
+  assert.ok(manifest.interface.shortDescription.length <= 30);
+  assert.match(manifest.interface.defaultPrompt, /completed Plan-mode plan/i);
+  assert.match(manifest.interface.defaultPrompt, /requested lists, guides, checklists/i);
 
   const skill = await readFile(join(root, 'skills', 'pretty-md', 'SKILL.md'), 'utf8');
   assert.match(skill, /Use this whenever a user asks to create, write, generate/i);
@@ -110,8 +110,11 @@ test('plugin manifests wire trusted lifecycle events to the packaged hook', asyn
   assert.match(planSkill, /filename: "plan.md"/i);
 
   const mcp = JSON.parse(await readFile(join(root, 'mcp.json'), 'utf8'));
-  assert.equal(mcp.mcpServers['pretty-md'].type, 'streamable-http');
-  assert.equal(mcp.mcpServers['pretty-md'].url, 'https://pretty-md.yourshows12.chatgpt.site/mcp');
+  assert.deepEqual(mcp.mcpServers, {});
+  assert.equal(manifest.apps, './.app.json');
+  const apps = JSON.parse(await readFile(join(root, '.app.json'), 'utf8'));
+  assert.equal(apps.apps['pretty-md'].id, 'asdk_app_sites_5778aca103d48191ae8d936da6f2d043');
+  assert.equal(apps.apps['pretty-md'].required, true);
 });
 
 test('Stop catches missed Markdown writes and clears only the exact successfully rendered file', async () => {

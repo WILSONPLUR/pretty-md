@@ -2,7 +2,7 @@
 
 The owner creates an empty public GitHub repository and supplies its HTTPS URL. Run `npm ci`, `npm run build`, `npm test`, and `npm run validate` before export.
 
-Run `npm run release:export -- --repository https://github.com/OWNER/REPO`. This creates `output/github-release` from an explicit file list, adds repository metadata, and excludes local Sites binding, Git history, credentials, and personal example documents. It never overwrites an existing export. Inspect the resulting tree before initializing Git there and pushing to the empty repository. Tag the exact version in `plugin.json` and `package.json`. Do not push this workspace’s existing history to the public repository.
+Run `npm run release:export -- --repository https://github.com/OWNER/REPO`. This creates `output/github-release` from an explicit file list, adds repository metadata, and excludes local Sites binding, Git history, credentials, and personal example documents. It never overwrites an existing export. Inspect the resulting tree before initializing Git there and pushing to the empty repository. Tag the exact version in `.codex-plugin/plugin.json` and `package.json`. Do not push this workspace’s existing history to the public repository.
 
 The public export builds without a Sites project binding. To self-host, copy `.openai/hosting.example.json` to `.openai/hosting.json` and fill in your own Sites project ID. The publisher retains its original project binding and deployment workflow in the development checkout.
 

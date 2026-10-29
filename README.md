@@ -10,7 +10,7 @@ Viewer supports settings:
 2. Dark/light theme switch
 3. Line spacing
 
-Version **0.4.11** uses the existing ChatGPT Sites connection.
+Version **0.4.12** uses the existing ChatGPT Sites connection.
 
 ## Use the hosted reader now
 
@@ -44,7 +44,7 @@ git pull --ff-only
 codex plugin add pretty-md@pretty-md-local
 ```
 
-Version 0.4.11 links this package to the existing ChatGPT Sites app instead of trying standalone OAuth against its raw URL. Do not install a second Pretty MD plugin or run `codex mcp login pretty-md`.
+Version 0.4.12 links this package to the existing ChatGPT Sites app instead of trying standalone OAuth against its raw URL. Do not install a second Pretty MD plugin or run `codex mcp login pretty-md`.
 
 **Access limitation:** the registered Site integration must be available to your account. Owner testing does not establish public availability. Installation and rendering with an unrelated account remain unverified; a public release of the existing Site integration may still be required. See [connection troubleshooting](docs/codex-installation.md).
 
