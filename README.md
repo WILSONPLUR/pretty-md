@@ -4,7 +4,20 @@ Version **0.4.10** is a cozy Markdown viewer for ChatGPT, Codex, and Codex Remot
 
 ## Install from GitHub
 
-See [Codex installation](docs/codex-installation.md) for clone installation, authentication, updates, and Remote use. The public release uses the MIT license; the shared reader requires Sign in with ChatGPT and keeps each user’s documents private. Native mobile plugin installation is deferred.
+1. Clone the plugin:
+
+   ```sh
+   git clone https://github.com/WILSONPLUR/pretty-md.git
+   cd pretty-md
+   ```
+
+2. Open this folder in Codex desktop and restart the app.
+3. Open **Plugins → Pretty MD Local → pretty-md → Install**. Sign in when prompted; review and trust the hooks to enable automatic reader links.
+4. Start a new chat and paste:
+
+   ```text
+   @pretty-md render a short Markdown example
+   ```
 
 ## What users get
 
