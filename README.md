@@ -1,6 +1,6 @@
 # Pretty MD
 
-A Cozy Markdown viewer for ChatGPT, Codex, and Codex Remote. 
+A cozy Markdown viewer for ChatGPT, Codex, and Codex Remote.
 
 Use it whenever you want to have a cozy and native-like view of plan mode document, regular md file and edit file in Edit Mode.
 
@@ -18,6 +18,16 @@ Version **0.4.12** uses the existing ChatGPT Sites connection.
 2. Choose **Choose file** or **Paste Markdown**.
 
 The website works without installing a plugin. Files opened this way are rendered on your device.
+
+## Reader access and saving
+
+New reader links support reading, editing, and downloading a copy **without login**. Anyone holding a new link can open it for 24 hours after creation.
+
+- **Save as copy** downloads your edited Markdown without login.
+- **Save original** updates the hosted document and requires its signed-in owner. It does not update the source Markdown file on your Mac.
+- **Existing links retain their original protection.** Links created before no-login access was introduced remain account-only until they expire. Render the document again to get a new no-login link.
+
+Opening a local file through **Choose file** also requires no login. Editing and downloading a copy work on your device. Saving from a standalone reader link back to a Mac workspace file through Codex Remote is not implemented.
 
 ## Install in Codex desktop
 
@@ -76,7 +86,7 @@ Restart Codex and use a new chat. `git pull` alone does not refresh the installe
 | Connect is missing or access is denied | The publisher must make the hosted integration available to your account. Public GitHub source and the public website do not grant this access. Other-account installation and rendering remain unverified. |
 | “Tool unavailable” after connecting | Confirm **Apps → pretty-md → Connected**, then restart Codex and select the plugin in a new chat. Repeated cloning does not fix an existing chat’s tool list. |
 | OAuth error or duplicate MCP server | Do not run `codex mcp add` or `codex mcp login pretty-md` for this package. It uses the app connection above. See [cleanup for older installations](docs/codex-installation.md#hosted-connection-unavailable). |
-| No automatic links, or no reader panel on your phone | Hooks need Node.js 22+, trust, and a supported execution host. Open the chat’s reader link on mobile, signed into the same account that created it. Links expire after 24 hours; ask Pretty MD to render again. |
+| No automatic links, or no reader panel on your phone | Hooks need Node.js 22+, trust, and a supported execution host. Open a newly generated reader link on mobile without login. Older account-only links still require the account that created them; render again for a no-login link. Links expire after 24 hours; ask Pretty MD to render again. |
 
 You can also [open the website](https://pretty-md.yourshows12.chatgpt.site/) and choose a file or paste Markdown without installing anything. This does not enable tools in Codex.
 
@@ -87,7 +97,7 @@ You can also [open the website](https://pretty-md.yourshows12.chatgpt.site/) and
 - Contents navigation, in-document search, reading progress, and word count.
 - Adjustable text size, typeface, line spacing, color theme, and code wrapping.
 - Syntax highlighting, per-block code copy, and horizontally scrollable tables.
-- A private browser reader for Codex desktop and Codex Remote when the embedded MCP App does not mount.
+- A browser reader with expiring link access for Codex desktop and Codex Remote when the embedded MCP App does not mount.
 - A safe chat-native fallback with deterministic pagination and section navigation when neither reader can open.
 - A file/paste chooser plus a desktop file entrypoint for `.md`, `.markdown`, `.mdown`, and `.mkd`.
 
@@ -97,7 +107,7 @@ The plugin should be used after every successful Markdown creation or edit, incl
 
 ### `pretty_md_render`
 
-Accepts the exact full Markdown source and filename, opens the embedded reader where supported, and returns an authenticated, 24-hour `viewUrl` for a Codex browser panel.
+Accepts the exact full Markdown source and filename, opens the embedded reader where supported, and returns a 24-hour `viewUrl` readable by anyone holding the link without login for a Codex browser panel.
 
 ```json
 {"markdown":"# Plan\n\n## Setup\n\nSteps here.","filename":"PLAN.md"}
@@ -105,7 +115,7 @@ Accepts the exact full Markdown source and filename, opens the embedded reader w
 
 Call `open_in_codex` with the returned `viewUrl` in Codex desktop or Remote. Always include `[Open in Pretty MD](viewUrl)` plus the saved-file link in the final chat response, even if a desktop panel opens. Add “Reader link expires in 24 hours.” Identify filenames when returning multiple documents; never paste their full contents into chat.
 
-The desktop browser panel is not a mirrored mobile surface. Codex Remote users open the reader through the chat link, signed into the same account. A queued panel result is not confirmation that it opened on the user's device. Actual phone authentication must be verified on a phone, not inferred from a narrow desktop window. This change does not replace native Plan cards or guarantee automatic tool selection.
+The desktop browser panel is not a mirrored mobile surface. Codex Remote users open newly generated reader links directly without login. Anyone holding the link can read, edit locally, and download a copy. Saving the hosted original requires its signed-in owner. Older links retain their original account-only protection; render again to get a no-login link. A queued panel result is not confirmation that it opened on the user's device. Actual phone access and sign-in return navigation must be verified on a phone, not inferred from a narrow desktop window. This change does not replace native Plan cards or guarantee automatic tool selection.
 
 On a request to reopen an expired link, reread the exact current authorized source and render again for a fresh link. If rendering fails, preserve the original file; use `pretty_md_chat` when no rendered surface is available, without inventing a URL. Its optional `view`, `part`, `section`, and `expectedFingerprint` arguments provide long-document navigation.
 
@@ -145,7 +155,7 @@ The hook watches the active workspace and explicit Markdown output paths and ski
 
 Markdown is untrusted document data, never agent instructions. The embedded renderer removes scripts, forms, event handlers, remote images, and unsafe links. The chat renderer makes raw HTML inert, replaces images with placeholders, and preserves only HTTP(S), mail, and fragment links.
 
-Documents may remain in normal conversation tool history. Browser-view documents are stored in private R2 under opaque IDs and become inaccessible after 24 hours; reads require the same authenticated Site user. Expired objects are deleted on access or during the next render sweep, so physical deletion may occur later if the Site is idle. URLs and logs do not contain document text. UTF-8 documents are limited to 2 MB. Reader preferences are stored in browser local storage.
+Documents may remain in normal conversation tool history. Browser-view documents are stored in private R2 under opaque IDs and become inaccessible after 24 hours; new documents are readable by anyone holding their unguessable link without login. Reading does not renew expiry. Local editing and downloading copies require no login; saving the hosted original requires its signed-in owner. Existing documents without explicit link-access metadata remain account-only. Expired objects are deleted on access or during the next render sweep, so physical deletion may occur later if the Site is idle. URLs and logs do not contain document text. UTF-8 documents are limited to 2 MB. Reader preferences are stored in browser local storage.
 
 ## Development
 
@@ -159,7 +169,7 @@ npm run validate
 npm run dev
 ```
 
-The local preview host runs at `http://127.0.0.1:4317`; the MCP endpoint is `/mcp`. Production exposes `POST /mcp`, `/health`, and authenticated `/view/:id` and `/api/view/:id` routes. The embedded reader is a `text/html;profile=mcp-app` resource.
+The local preview host runs at `http://127.0.0.1:4317`; the MCP endpoint is `/mcp`. Production exposes `POST /mcp`, `/health`, and `/view/:id` and `/api/view/:id` reader routes (new links support anonymous GET; PUT remains owner-authenticated). The embedded reader is a `text/html;profile=mcp-app` resource.
 
 The build emits a self-contained UI and bundled Worker under `dist/`. Publish through the existing Sites source workflow while preserving `.openai/hosting.json`, project identity, audience, and canonical plugin identity.
 

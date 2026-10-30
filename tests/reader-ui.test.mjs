@@ -10,14 +10,27 @@ const [{ outputFiles }, template] = await Promise.all([
 ]);
 const html = template.replace('/* APP_SCRIPT */', () => outputFiles[0].text.replace(/<\/script/gi, '<\\/script'));
 
-function reader(t, { drawer = false, dark = false } = {}) {
+function reader(t, { drawer = false, dark = false, standalone } = {}) {
   const media = new Map();
+  const downloads = [], requests = [];
   const browser = new JSDOM(html, {
-    url: 'https://pretty-md.example/',
+    url: 'https://pretty-md.example/' + (standalone ? 'view/' + 'a'.repeat(32) : ''),
     runScripts: 'dangerously',
     pretendToBeVisual: true,
     beforeParse(window) {
       window.TextEncoder = TextEncoder;
+      if (standalone) {
+        window.fetch = async (uri, options) => {
+          requests.push({ uri, options });
+          return new Response(JSON.stringify({ filename: 'Shared.md', markdown: '# Shared', ...standalone }), {
+            headers: { 'x-document-version': '"v1"' },
+          });
+        };
+        window.Blob = Blob;
+        window.URL.createObjectURL = blob => { downloads.push(blob); return 'blob:download'; };
+        window.URL.revokeObjectURL = () => {};
+        window.HTMLAnchorElement.prototype.click = function () {};
+      }
       window.matchMedia = (query) => {
         query = query.replace(/\s/g, '');
         if (!media.has(query)) {
@@ -45,8 +58,43 @@ function reader(t, { drawer = false, dark = false } = {}) {
     $('paste-text').value = markdown;
     $('paste-form').dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }));
   };
-  return { $, window, key, media, open };
+  return { $, window, key, media, open, downloads, requests };
 }
+
+test('standalone link readers edit and download copies using server-provided save permissions', async (t) => {
+  for (const signedIn of [false, true]) {
+    const signInUrl = signedIn ? null : '/signin-with-chatgpt?return_to=%2Fview%2F' + 'a'.repeat(32);
+    const { $, window, downloads, requests } = reader(t, { standalone: { canWrite: false, signInUrl } });
+    await new Promise(resolve => window.setTimeout(resolve, 30));
+    assert.equal($('edit-toggle').disabled, false);
+    $('edit-toggle').click();
+    $('inline-editor').querySelector('h1').firstChild.textContent = 'Edited copy';
+    await new Promise(resolve => window.setTimeout(resolve, 30));
+    $('edit-save').click();
+    assert.equal($('save-dialog').open, true);
+    assert.equal($('save-original').disabled, true);
+    assert.equal($('save-signin').hidden, signedIn);
+    if (!signedIn) {
+      assert.equal($('save-signin-link').getAttribute('href'), signInUrl);
+      assert.equal($('save-signin-link').target, '_top');
+    }
+    $('save-original').click();
+    $('save-copy').click();
+    await new Promise(resolve => window.setTimeout(resolve, 10));
+    assert.equal(downloads.length, 1);
+    assert.match(await downloads[0].text(), /# Edited copy/);
+    assert.equal(requests.length, 1, 'local editing and downloading must not write to the API');
+    assert.equal(requests[0].options.credentials, 'same-origin');
+  }
+});
+
+test('standalone owners can save originals and see no sign-in prompt', async (t) => {
+  const { $, window } = reader(t, { standalone: { canWrite: true, signInUrl: null } });
+  await new Promise(resolve => window.setTimeout(resolve, 30));
+  assert.equal($('edit-toggle').disabled, false);
+  assert.equal($('save-original').disabled, false);
+  assert.equal($('save-signin').hidden, true);
+});
 
 test('document actions enable on load and filename titles do not duplicate Markdown H1s', (t) => {
   const { $, open } = reader(t);

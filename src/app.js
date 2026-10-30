@@ -640,7 +640,8 @@ async function readStandaloneDocument() {
   if (!response.ok) throw new Error(response.status === 404 ? 'This document is unavailable or expired.' : 'Unable to load this document.');
   const document = await response.json();
   return { document, resource: {
-    uri, writable: true, etag: response.headers.get('x-document-version') || response.headers.get('etag'), read: readStandaloneDocument,
+    uri, writable: document.canWrite === true, signInUrl: document.signInUrl,
+    etag: response.headers.get('x-document-version') || response.headers.get('etag'), read: readStandaloneDocument,
     async write({ text, ifMatch }) {
       const result = await fetch(uri, { method: 'PUT', credentials: 'same-origin', headers: { 'content-type': 'text/markdown;charset=utf-8', 'if-match': ifMatch, 'x-document-version': ifMatch }, body: text });
       const data = await result.json();

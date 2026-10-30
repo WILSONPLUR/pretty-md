@@ -33,7 +33,7 @@ function visit(bucket, user, path) {
   }), { BUCKET: bucket });
 }
 
-test('render returns a private browser reader without echoing the full document in chat', async () => {
+test('render returns an expiring link-access browser reader without echoing the full document in chat', async () => {
   const bucket = new MemoryBucket();
   const markdown = '# Private plan\n\nA secret paragraph that belongs in the reader.\n';
   const response = await call(bucket, 'user-a', 'pretty_md_render', { markdown, filename: 'PLAN.md' });
@@ -60,11 +60,20 @@ test('render returns a private browser reader without echoing the full document 
   const apiPath = new URL(viewUrl).pathname.replace('/view/', '/api/view/');
   const data = await visit(bucket, 'user-a', apiPath);
   assert.equal(data.status, 200);
-  assert.deepEqual(await data.json(), { filename: 'PLAN.md', markdown });
-  assert.equal((await visit(bucket, 'user-b', apiPath)).status, 404);
-  assert.equal((await visit(bucket, null, apiPath)).status, 401);
-  assert.equal((await visit(bucket, 'user-b', new URL(viewUrl).pathname)).status, 404);
-  assert.equal((await visit(bucket, null, new URL(viewUrl).pathname)).status, 302);
+  assert.deepEqual(await data.json(), { filename: 'PLAN.md', markdown, canWrite: true, signInUrl: null });
+  for (const user of [null, 'user-b']) {
+    const response = await visit(bucket, user, apiPath);
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('cache-control'), 'no-store');
+    assert.equal(response.headers.get('referrer-policy'), 'no-referrer');
+    assert.match(response.headers.get('x-robots-tag'), /noindex/);
+    assert.deepEqual(await response.json(), { filename: 'PLAN.md', markdown, canWrite: false,
+      signInUrl: user ? null : `/signin-with-chatgpt?return_to=${encodeURIComponent(new URL(viewUrl).pathname)}` });
+    const page = await visit(bucket, user, new URL(viewUrl).pathname);
+    assert.equal(page.status, 200);
+    assert.equal(page.headers.get('location'), null);
+    assert.match(page.headers.get('x-robots-tag'), /noindex/);
+  }
 });
 
 test('reader links last 24 hours from creation without extending on reads', async (t) => {
@@ -97,7 +106,7 @@ test('expired documents stop opening and are removed from storage', async () => 
   const fresh = (await (await call(bucket, 'user-a', 'pretty_md_render', { markdown, filename: 'NOTES.md' })).json()).result;
   assert.notEqual(fresh.structuredContent.viewUrl, viewUrl);
   const freshPath = new URL(fresh.structuredContent.viewUrl).pathname.replace('/view/', '/api/view/');
-  assert.deepEqual(await (await visit(bucket, 'user-a', freshPath)).json(), { filename: 'NOTES.md', markdown });
+  assert.deepEqual(await (await visit(bucket, 'user-a', freshPath)).json(), { filename: 'NOTES.md', markdown, canWrite: true, signInUrl: null });
 });
 
 function save(bucket, user, path, markdown, etag, extra = {}) {
@@ -122,7 +131,7 @@ test('Save updates the original view, preserves expiry, and guards ownership and
   const outcome = await saved.json(); assert.equal(outcome.outcome, 'saved');
   const reloaded = await visit(bucket, 'user-a', path);
   assert.equal(reloaded.headers.get('etag'), outcome.etag);
-  assert.deepEqual(await reloaded.json(), { markdown: '# Edited', filename: 'Notes.md' });
+  assert.deepEqual(await reloaded.json(), { markdown: '# Edited', filename: 'Notes.md', canWrite: true, signInUrl: null });
   assert.equal([...bucket.objects.values()][0].customMetadata.expiresAt, expiresAt);
   assert.equal((await save(bucket, 'user-a', path, '# Stale', etag)).status, 409);
   assert.equal((await save(bucket, 'user-a', path, 'é'.repeat(1024 * 1024 + 1), outcome.etag)).status, 413);
@@ -159,12 +168,46 @@ test('host compression weak ETags do not cause false save conflicts', async () =
 });
 
 
-test('anonymous browser readers sign in with a local return path; APIs stay unauthorized', async () => {
-  const page = await visit(new MemoryBucket(), null, '/view/0123456789abcdef0123456789abcdef');
+test('legacy links retain owner-only access and local sign-in return paths', async () => {
+  const bucket = new MemoryBucket();
+  const id = '0123456789abcdef0123456789abcdef';
+  await bucket.put(`views/${id}`, '# Legacy', { customMetadata: {
+    owner: 'user-a', filename: 'Legacy.md', expiresAt: String(Date.now() + 60_000),
+  } });
+  const page = await visit(bucket, null, `/view/${id}`);
   assert.equal(page.status, 302);
-  assert.equal(page.headers.get('location'), '/signin-with-chatgpt?return_to=%2Fview%2F0123456789abcdef0123456789abcdef');
+  assert.equal(page.headers.get('location'), `/signin-with-chatgpt?return_to=%2Fview%2F${id}`);
   assert.equal(page.headers.get('cache-control'), 'no-store');
-  const api = await visit(new MemoryBucket(), null, '/api/view/0123456789abcdef0123456789abcdef');
+  const api = await visit(bucket, null, `/api/view/${id}`);
   assert.equal(api.status, 401);
   assert.equal(api.headers.get('location'), null);
+  for (const path of [`/view/${id}`, `/api/view/${id}`]) {
+    assert.equal((await visit(bucket, 'user-b', path)).status, 404);
+    assert.equal((await visit(bucket, 'user-a', path)).status, 200);
+  }
+  const data = await visit(bucket, 'user-a', `/api/view/${id}`);
+  assert.equal((await data.json()).canWrite, true);
+  assert.equal((await save(bucket, 'user-a', `/api/view/${id}`, '# Legacy edited', data.headers.get('etag'))).status, 200);
+  assert.equal((await visit(bucket, null, `/api/view/${id}`)).status, 401, 'saving must not widen legacy access');
+});
+
+test('anonymous access respects expiry, invalid IDs and absent storage', async (t) => {
+  const created = Date.now();
+  let now = created;
+  t.mock.method(Date, 'now', () => now);
+  const bucket = new MemoryBucket();
+  const result = (await (await call(bucket, 'user-a', 'pretty_md_render', { markdown: '# Public link' })).json()).result;
+  const path = new URL(result.structuredContent.viewUrl).pathname;
+  now = created + 24 * 60 * 60 * 1000 - 1;
+  assert.equal((await visit(bucket, null, path)).status, 200);
+  now++;
+  assert.equal((await visit(bucket, null, path)).status, 404);
+  for (const id of ['invalid', 'f'.repeat(32), 'x'.repeat(33)]) {
+    for (const prefix of ['/view/', '/api/view/']) {
+      const response = await visit(bucket, null, prefix + id);
+      assert.equal(response.status, 404);
+      assert.equal(response.headers.get('location'), null);
+    }
+  }
+  assert.equal((await worker.fetch(new Request('https://pretty-md.example/view/' + 'f'.repeat(32)))).status, 404);
 });

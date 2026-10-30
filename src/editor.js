@@ -55,6 +55,10 @@ export function createEditor({ window, onCommit, onDraft, onMode, download, deta
     $('edit-discard').disabled = busy || (!dirty() && !latest);
     rich?.editor.setEditable(!busy, false);
     $('save-original').disabled = busy || hasAssets() || !writable();
+    const signInUrl = (latest?.resource || resource)?.signInUrl;
+    $('save-signin').hidden = writable() || !signInUrl;
+    if (signInUrl) $('save-signin-link').setAttribute('href', signInUrl);
+    else $('save-signin-link').removeAttribute('href');
     $('edit-status').textContent = busy ? 'Saving…' : dirty() ? 'Unsaved changes' : 'Markdown editor';
     message('draft-notice', !editing && dirty() ? 'Unsaved changes · save your changes or choose Edit to continue.' : '');
     for (const id of ['save-copy', 'save-close']) $(id).disabled = busy;
@@ -193,7 +197,7 @@ export function createEditor({ window, onCommit, onDraft, onMode, download, deta
     if ((!dirty() && !latest) || busy) return;
     preview();
     if (!valid) return;
-    message('save-error', hasAssets() ? 'Uploaded images stay on this device. Save as copy downloads a ZIP containing the Markdown and images.' : !writable() ? 'This document has no writable original. Save as copy downloads the edited Markdown to your device.' : '');
+    message('save-error', hasAssets() ? 'Uploaded images stay on this device. Save as copy downloads a ZIP containing the Markdown and images.' : !writable() ? 'Saving to the original is unavailable. Save as copy downloads the edited Markdown to your device.' : '');
     $('save-dialog').showModal();
   }
   $('edit-toggle').addEventListener('click', () => setMode(!editing));

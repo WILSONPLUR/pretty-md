@@ -39,7 +39,7 @@ If a separate user-level MCP server named `pretty-md` was added during troublesh
 
 Open https://pretty-md.yourshows12.chatgpt.site/ and choose **Choose file** or **Paste Markdown**. This works without plugin installation and renders local files on your device. It does not create a hosted tool-generated link.
 
-Tool-generated links require the same account that created them and expire after 24 hours. Local hooks need Node.js 22 or later on the execution host and hook trust. They do not provide native mobile installation.
+New tool-generated links open without login for anyone holding the link and expire after 24 hours. Readers can edit locally and download a copy; saving the hosted original requires its signed-in owner. Older account-only links still require the account that created them; render again for a no-login link. Local hooks need Node.js 22 or later on the execution host and hook trust. They do not provide native mobile installation.
 
 See [data handling](data-handling.md) for the service policy.
 

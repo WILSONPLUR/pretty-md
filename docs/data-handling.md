@@ -1,6 +1,6 @@
 # Data handling
 
-Pretty MD sends the Markdown you explicitly render to the publisher-operated hosted service at `pretty-md.yourshows12.chatgpt.site`. Documents are stored in R2 with opaque IDs and authenticated user ownership. A reader URL alone does not grant access to another account. Requests to read or save a document require its owner’s identity.
+Pretty MD sends the Markdown you explicitly render to the publisher-operated hosted service at `pretty-md.yourshows12.chatgpt.site`. Documents are stored in R2 with opaque IDs and authenticated user ownership. Anyone holding a newly generated reader link can read the document, edit locally, and download a copy without login. Saving changes to the hosted document still requires its signed-in owner. Older documents without explicit link-access metadata retain account-only reads; render again to create a no-login link.
 
 Reader links expire 24 hours after creation; opening or saving does not extend expiry. Expired objects are deleted when accessed or during a later render sweep, so physical deletion can happen later while the service is idle. Documents may also remain in normal conversation tool history. The service accepts up to 2 MB of UTF-8 Markdown per document. Reader preferences stay in browser local storage.
 
