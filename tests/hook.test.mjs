@@ -88,7 +88,7 @@ test('plugin manifests wire trusted lifecycle events to the packaged hook', asyn
   const icon = await readFile(join(root, 'assets', 'logo.svg'), 'utf8');
   assert.match(icon, /viewBox="0 0 512 512"/);
   assert.ok(Buffer.byteLength(icon) <= 5 * 1024 * 1024);
-  assert.equal(manifest.version, '0.4.12');
+  assert.equal(manifest.version, '0.4.13');
   assert.equal(manifest.hooks, './hooks/hooks.json');
   assert.match(manifest.description, /requested lists, guides, checklists/i);
   assert.match(manifest.description, /Plan.mode/i);

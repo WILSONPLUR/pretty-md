@@ -16,12 +16,13 @@ function request(method, params = {}, { authenticated = true, id = 1, body, head
 test('discovery advertises the reader UI and keeps the current and legacy MCP contracts', async () => {
   const payload = await (await request('tools/list', {}, { authenticated: false })).json();
   assert.deepEqual(payload.result.tools.map((tool) => tool.name), ['pretty_md_render', 'pretty_md_chat', 'pretty_md_open', 'pretty_md_file']);
-  assert.equal(TOOLS[0]._meta.ui.resourceUri, 'ui://pretty-md/reader-v2');
+  assert.equal(TOOLS[0]._meta, undefined, 'generated content must not attach a second, embedded reader');
+  assert.equal(payload.result.tools[0]._meta, undefined);
   assert.equal(TOOLS[2]._meta.ui.resourceUri, 'ui://pretty-md/reader-v2');
   for (const version of ['2025-03-26', '2025-06-18', '2025-11-25', '2026-07-28']) {
     const { result } = await (await request('initialize', { protocolVersion: version })).json();
     assert.equal(result.protocolVersion, version);
-    assert.equal(result.serverInfo.version, '0.4.10');
+    assert.equal(result.serverInfo.version, '0.4.13');
     assert.deepEqual(result.capabilities, { tools: {}, resources: {}, extensions: { 'io.modelcontextprotocol/skills': {} } });
     assert.match(result.instructions, /create, write, generate/i);
     assert.match(result.instructions, /even when the user does not name pretty-md/i);
@@ -40,6 +41,8 @@ test('discovery advertises the reader UI and keeps the current and legacy MCP co
   assert.match(TOOLS[0].description, /downloadable \.md attachment/i);
   assert.match(TOOLS[0].description, /always include \[Open in Pretty MD\]\(viewUrl\)/);
   assert.match(TOOLS[0].description, /Plan mode/i);
+  assert.match(TOOLS[0].description, /no embedded UI/);
+  assert.match(TOOLS[0].description, /do not also invoke pretty_md_open/);
   assert.match(TOOLS[2].description, /use pretty_md_render instead/i);
   for (const method of ['server/discover', 'tools/list', 'resources/list', 'resources/templates/list', 'prompts/list']) {
     const { result } = await (await request(method, {}, { authenticated: false })).json();
@@ -94,7 +97,7 @@ test('authenticated render returns a reader URL and chat fallback remains availa
   assert.match(opened.content[0].text, /reader is ready/);
   assert.equal((await request('resources/read', { uri: 'ui://pretty-md/reader-v2' }, { authenticated: false })).status, 401);
   const health = await (await worker.fetch(new Request('https://pretty-md.example/health'))).json();
-  assert.equal(health.version, '0.4.10');
+  assert.equal(health.version, '0.4.13');
 });
 
 test('file entrypoint forwards an authorized host resource handle to the reader', async () => {

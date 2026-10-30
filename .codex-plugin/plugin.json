@@ -1,6 +1,6 @@
 {
   "name": "pretty-md",
-  "version": "0.4.12",
+  "version": "0.4.13",
   "description": "Read Markdown comfortably. Open completed Plan-mode plans, directly requested Markdown, and requested lists, guides, checklists, comparisons, or itineraries in Pretty MD.",
   "license": "MIT",
   "author": {

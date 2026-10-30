@@ -10,7 +10,7 @@ Viewer supports settings:
 2. Dark/light theme switch
 3. Line spacing
 
-Version **0.4.12** uses the existing ChatGPT Sites connection.
+Version **0.4.13** uses the existing ChatGPT Sites connection and opens generated content in one browser tab.
 
 ## Use the hosted reader now
 
@@ -92,12 +92,12 @@ You can also [open the website](https://pretty-md.yourshows12.chatgpt.site/) and
 
 ## What users get
 
-- A responsive embedded reader with **Read** and **Source** views.
+- A responsive reader with **Read** and **Source** views.
 - One-click **Copy Markdown** and **Download .md** controls.
 - Contents navigation, in-document search, reading progress, and word count.
 - Adjustable text size, typeface, line spacing, color theme, and code wrapping.
 - Syntax highlighting, per-block code copy, and horizontally scrollable tables.
-- A browser reader with expiring link access for Codex desktop and Codex Remote when the embedded MCP App does not mount.
+- One browser reader tab per generated document, with expiring link access for Codex desktop and Codex Remote.
 - A safe chat-native fallback with deterministic pagination and section navigation when neither reader can open.
 - A file/paste chooser plus a desktop file entrypoint for `.md`, `.markdown`, `.mdown`, and `.mkd`.
 
@@ -107,13 +107,13 @@ The plugin should be used after every successful Markdown creation or edit, incl
 
 ### `pretty_md_render`
 
-Accepts the exact full Markdown source and filename, opens the embedded reader where supported, and returns a 24-hour `viewUrl` readable by anyone holding the link without login for a Codex browser panel.
+Accepts the exact full Markdown source and filename, returns a 24-hour `viewUrl` readable by anyone holding the link without login for a Codex browser panel.
 
 ```json
 {"markdown":"# Plan\n\n## Setup\n\nSteps here.","filename":"PLAN.md"}
 ```
 
-Call `open_in_codex` with the returned `viewUrl` in Codex desktop or Remote. Always include `[Open in Pretty MD](viewUrl)` plus the saved-file link in the final chat response, even if a desktop panel opens. Add “Reader link expires in 24 hours.” Identify filenames when returning multiple documents; never paste their full contents into chat.
+Call `open_in_codex` once with the returned `viewUrl` in Codex desktop or Remote. The render tool does not attach an embedded MCP App, so it does not create a second tab. Do not also call `pretty_md_open` for generated content; that tool is only the separate file/paste chooser. Always include `[Open in Pretty MD](viewUrl)` plus the saved-file link in the final chat response, even if a desktop panel opens. Add “Reader link expires in 24 hours.” Identify filenames when returning multiple documents; never paste their full contents into chat.
 
 The desktop browser panel is not a mirrored mobile surface. Codex Remote users open newly generated reader links directly without login. Anyone holding the link can read, edit locally, and download a copy. Saving the hosted original requires its signed-in owner. Older links retain their original account-only protection; render again to get a no-login link. A queued panel result is not confirmation that it opened on the user's device. Actual phone access and sign-in return navigation must be verified on a phone, not inferred from a narrow desktop window. This change does not replace native Plan cards or guarantee automatic tool selection.
 
