@@ -21,9 +21,11 @@ The website works without installing a plugin. Files opened this way are rendere
 
 ## Install in Codex desktop
 
-Requires Git, Codex desktop, and the `codex` command in Terminal. Automatic hooks also require Node.js 22 or later.
+You need **Git**, **Codex desktop**, and the **Codex CLI** (`codex` in Terminal). Optional automatic hooks require **Node.js 22+**. This guide installs one plugin on your computer; it is not a mobile installation.
 
-**1. Clone and install the package.**
+### 1. Install
+
+Run in Terminal from the folder where you want to keep the repository:
 
 ```sh
 git clone https://github.com/WILSONPLUR/pretty-md.git
@@ -32,33 +34,29 @@ codex plugin marketplace add .
 codex plugin add pretty-md@pretty-md-local
 ```
 
-**2. Connect the hosted app.**
+Keep this folder for updates. Already cloned it? Use the update commands below.
 
-Restart Codex, then open **Plugins → Pretty MD Local → pretty-md**. Under **Apps**, find **pretty-md**, click **Connect**, and complete the account authorization. Confirm the row shows a green **Connected** status. If it already says **Connected**, continue.
+### 2. Connect
 
-Cloning installs the skills, hooks, and app reference. Connecting authorizes your account to use the hosted rendering tools. Both steps are required for reader links; the app appears inside the same plugin, so you do not need to install another Pretty MD package.
+Restart Codex. Open **Plugins → Pretty MD Local → pretty-md → Apps**. Click **Connect** beside **pretty-md** and finish authorization. The row must show green **Connected**.
 
-**3. Enable automatic plan links (optional).**
+Installation adds the skills and hooks; **Connect** enables the hosted rendering tools for your account. Both are required. You do not need a second Pretty MD plugin.
 
-On the same plugin page, open the gear beside **Hooks** and review/approve hook trust when Codex requests it. Hooks support automatic Markdown and plan-link delivery; they do not replace the app connection.
+For automatic Markdown and plan links, also review/approve **Hooks** using the gear on the same plugin page. Hooks are optional and cannot replace the app connection.
 
-**4. Verify in a new chat.**
+### 3. Try it
 
-Start a new chat, select **pretty-md** from the plugin picker, and send:
+Start a **new chat**, select **pretty-md** in the plugin picker, and send:
 
 ```text
 Render # Hello world in Pretty MD and return the reader link.
 ```
 
-Success means a `pretty_md_render` call returns an **Open in Pretty MD** link that you can open. A plugin listing, **Connected** status, or inline Markdown alone does not verify rendering.
+Open the returned **Open in Pretty MD** link. Inline Markdown or a **Connected** badge alone does not confirm the rendering tool works.
 
-If the tool is unavailable, check **Apps → pretty-md → Connected**, restart Codex, and try a new chat. If **Apps** is absent, update the package below and confirm version **0.4.12**. Do not run `codex mcp login pretty-md`: this package uses the existing ChatGPT Sites app connection.
+### Update
 
-**Account access:** the hosted integration must be available to your account. Public GitHub source and a public reader website do not grant integration access. Rendering with an unrelated account remains unverified. If Connect is missing or access is denied, cloning again will not resolve it; the publisher must make the existing integration available. See [connection troubleshooting](docs/codex-installation.md).
-
-## Update an existing installation
-
-Run from your original clone:
+Run inside your existing clone, replacing the example path:
 
 ```sh
 cd /path/to/pretty-md
@@ -66,7 +64,21 @@ git pull --ff-only
 codex plugin add pretty-md@pretty-md-local
 ```
 
-Restart Codex, confirm **Apps → pretty-md → Connected**, and test in a new chat. Pulling alone does not refresh Codex’s installed plugin cache.
+Restart Codex and use a new chat. `git pull` alone does not refresh the installed plugin cache.
+
+### Common pitfalls
+
+| Problem | What to do |
+| --- | --- |
+| `git` or `codex`: command not found | Install the missing Git or Codex CLI command, reopen Terminal, then retry. Codex desktop alone does not confirm the CLI is on your PATH. |
+| Clone destination already exists | Use your existing clone and the **Update** commands; do not clone over it. If `git pull --ff-only` fails, keep your local changes and resolve the Git error first. |
+| **Apps** is missing | Update and reinstall the same package, restart Codex, and confirm version **0.4.12** or later. |
+| Connect is missing or access is denied | The publisher must make the hosted integration available to your account. Public GitHub source and the public website do not grant this access. Other-account installation and rendering remain unverified. |
+| “Tool unavailable” after connecting | Confirm **Apps → pretty-md → Connected**, then restart Codex and select the plugin in a new chat. Repeated cloning does not fix an existing chat’s tool list. |
+| OAuth error or duplicate MCP server | Do not run `codex mcp add` or `codex mcp login pretty-md` for this package. It uses the app connection above. See [cleanup for older installations](docs/codex-installation.md#hosted-connection-unavailable). |
+| No automatic links, or no reader panel on your phone | Hooks need Node.js 22+, trust, and a supported execution host. Open the chat’s reader link on mobile, signed into the same account that created it. Links expire after 24 hours; ask Pretty MD to render again. |
+
+You can also [open the website](https://pretty-md.yourshows12.chatgpt.site/) and choose a file or paste Markdown without installing anything. This does not enable tools in Codex.
 
 ## What users get
 
