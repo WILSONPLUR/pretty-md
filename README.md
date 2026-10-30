@@ -12,6 +12,20 @@ Viewer supports settings:
 
 Version **0.4.13** uses the existing ChatGPT Sites connection and opens generated content in one browser tab.
 
+## Showcases
+
+**Light theme and reader controls**
+
+![Pretty MD in light theme with the reader controls menu open](assets/showcases/light-theme-controls.png)
+
+**Reading alongside a Codex chat**
+
+![Pretty MD displaying a learning plan beside a Codex chat in dark theme](assets/showcases/codex-reader.png)
+
+**Mobile reading in dark theme**
+
+![Pretty MD displaying a learning plan in a mobile browser](assets/showcases/mobile-reader.jpg)
+
 ## Use the hosted reader now
 
 1. Open [Pretty MD](https://pretty-md.yourshows12.chatgpt.site/).
